@@ -1,69 +1,45 @@
 import streamlit as st
+import numpy as np
 import pandas as pd
 
-# --- Load dataset ---
+st.title("Preprocessed Data Overview")
+
+# --- Load preprocessed arrays ---
 @st.cache_data
-def load_data(path):
-    return pd.read_excel(path)
+def load_processed_data():
+    X_train = np.load("X_train_processed.npy", allow_pickle=True)
+    X_val = np.load("X_val_processed.npy", allow_pickle=True)
+    X_test = np.load("X_test_processed.npy", allow_pickle=True)
+    y_train = np.load("y_train.npy", allow_pickle=True)
+    y_val = np.load("y_val.npy", allow_pickle=True)
+    y_test = np.load("y_test.npy", allow_pickle=True)
+    return X_train, X_val, X_test, y_train, y_val, y_test
 
-file_path = '../data/883eax2-sup-0002.xlsx'
-df = load_data(file_path)
+X_train, X_val, X_test, y_train, y_val, y_test = load_processed_data()
 
-st.title("Data Preprocessing")
+# --- Display shapes ---
+st.header("Dataset Shapes")
+st.write(f"X_train: {X_train.shape}")
+st.write(f"X_val:   {X_val.shape}")
+st.write(f"X_test:  {X_test.shape}")
+st.write(f"y_train: {y_train.shape}")
+st.write(f"y_val:   {y_val.shape}")
+st.write(f"y_test:  {y_test.shape}")
 
-# --- Drop unnecessary columns ---
-df = df.drop(columns=['ID_api'])
-st.header("Dropped Columns")
-st.write("Dropped column: ID_api")
+# --- Quick data preview ---
+st.header("Preview of Feature Arrays")
+st.subheader("X_train (first 10 rows)")
+st.dataframe(pd.DataFrame(X_train).head(10))
 
-# --- Handle missing values ---
-st.header("Missing Values Handling")
-st.write("Fill missing values in 'Environment' with mode")
-df['Environment'] = df['Environment'].fillna(df['Environment'].mode()[0])
+st.subheader("y_train (first 10 values)")
+st.dataframe(pd.DataFrame(y_train).head(10))
 
-missing = df.isnull().sum()
-st.subheader("Remaining missing values per column")
-st.dataframe(missing[missing > 0] if any(missing>0) else "No missing values left!")
+# --- Basic statistics ---
+st.header("Basic Statistics")
+st.subheader("Numeric summary of X_train")
+st.dataframe(pd.DataFrame(X_train).describe())
 
-# --- Numeric-like columns processing ---
-st.header("Numeric-like Columns")
-num_like_cols = ['Age', 'Beekeep_for', 'Bee_population_size', 'Apiary_Size',
-                 'Swarm_bought', 'Swarm_produced', 'Queen_bought', 'Queen_produced']
+st.subheader("Target variable summary")
+st.dataframe(pd.DataFrame(y_train).describe())
 
-st.write("Extract numeric part from columns with mixed strings (e.g., '1___Less than 30')")
-for col in num_like_cols:
-    df[col] = df[col].apply(lambda x: int(str(x).split('___')[0].split('__')[0]))
-st.dataframe(df[num_like_cols].head(10))
-st.write("Summary statistics for numeric-like columns:")
-st.dataframe(df[num_like_cols].describe())
-
-# --- Binary columns processing ---
-st.header("Binary Columns")
-binary_cols = ['Qualif','Training','Coop_treat','Apiarist_book','Org_member','Continue',
-               'Chronic_Depop','ClinSign_Brood','ClinSign_Honeybees','H_Rate_ColMortality',
-               'H_Rate_HoneyMortality','OtherEvent','VarroaMites','QueenProblems',
-               'VarroosisV1','ChronicParalysisV1','AmericanFoulbroodV1','NosemosisV1',
-               'EuropeanFoulbroodV1','Migration','Merger']
-
-st.write("Convert string responses to 0/1")
-for col in binary_cols:
-    df[col] = df[col].map({'Yes':1,'No':0,'Suffering':1,'Not_Suffering':0})
-
-st.dataframe(df[binary_cols].head(10))
-st.write("Check unique values for binary columns:")
-for col in binary_cols:
-    st.write(f"{col}: {df[col].unique()}")
-
-# --- Categorical columns ---
-st.header("Categorical Columns")
-categorical_cols = ['Activity','Country','Production','Breed','Management',
-                    'MidSeason_Target','Environment','Program']
-
-st.write("Display top categories for each categorical column")
-for col in categorical_cols:
-    st.subheader(col)
-    counts = df[col].value_counts().head(10)
-    st.bar_chart(counts)
-
-st.success("Preprocessing completed! Data ready for modeling.")
-
+st.success("Preprocessed data loaded successfully! Ready for modeling.")

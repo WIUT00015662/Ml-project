@@ -10,10 +10,10 @@ from sklearn.compose import ColumnTransformer
 st.title("Predict Winter Mortality")
 
 # --- Load trained model ---
-with open("../best_model.pkl", "rb") as f:  # path to your saved model
+with open("best_model.pkl", "rb") as f:  # path to your saved model
     model = pickle.load(f)
 
-with open("../preprocessor.pkl", "rb") as f:
+with open("preprocessor.pkl", "rb") as f:
     preprocessor = pickle.load(f)
 
 # --- User inputs ---

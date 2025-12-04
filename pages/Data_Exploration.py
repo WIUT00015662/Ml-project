@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 def load_data(path):
     return pd.read_excel(path)
 
-file_path = '../data/883eax2-sup-0002.xlsx'
+file_path = 'data/883eax2-sup-0002.xlsx'
 df = load_data(file_path)
 
 st.title("Exploratory Data Analysis")
