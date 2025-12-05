@@ -12,3 +12,4 @@ catboost>=1.2
 plotly>=5.16
 pydantic>=2.7
 scipy
+openpyxl>=3.1.2
